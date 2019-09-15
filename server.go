@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"github.com/gomodule/redigo/redis"
 )
 
 // A single Broker will be created in this program. It is responsible
@@ -137,9 +138,9 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// disconnected.
 			break
 		}
-
+// 这里是控制输出到客户端的信息的显示
 		// Write to the ResponseWriter, `w`.
-		fmt.Fprintf(w, "data: Message: %s\n\n", msg)
+		fmt.Fprintf(w, "data: %s\n\n", msg)
 
 		// Flush the response.  This is only possible if
 		// the repsonse supports streaming.
@@ -164,7 +165,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read in the template with our SSE JavaScript code.
-	t, err := template.ParseFiles("templates/index.html")
+	t, err := template.ParseFiles("templates/scoregolang.html")
 	if err != nil {
 		log.Fatal("WTF dude, error parsing your template.")
 
@@ -180,7 +181,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 // Main routine
 //
 func main() {
+	c, err := redis.Dial("tcp", "localhost:6379")
+	if err != nil{
+		fmt.Println("---------redis connect error-----------")
+	}
+	// c.Send("SUBSCRIBE", "channel_1")
 
+	psc := redis.PubSubConn{Conn: c}
+    psc.Subscribe("channel_1", "channel_2", "channel_3")
+
+
+
+
+
+
+    c.Flush()
 	// Make a new Broker instance
 	b := &Broker{
 		make(map[chan string]bool),
@@ -203,14 +218,22 @@ func main() {
 	// out to any clients that are attached.
 	go func() {
 		for i := 0; ; i++ {
-
 			// Create a little message to send to clients,
 			// including the current time.
-			b.messages <- fmt.Sprintf("%d - the time is %v", i, time.Now())
-
+			switch v := psc.Receive().(type) {
+			case redis.Message:
+				fmt.Printf("%s: message: %s\n", v.Channel, v.Data)
+				b.messages <- fmt.Sprintf("%s",v.Data)
+				log.Printf("Sent message %d ", i)
+			case redis.Subscription:
+				fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
+			case error:
+				return
+			}
+			
 			// Print a nice log message and sleep for 5s.
-			log.Printf("Sent message %d ", i)
-			time.Sleep(5e9)
+			
+			time.Sleep(1e9)
 
 		}
 	}()
@@ -220,5 +243,5 @@ func main() {
 	http.Handle("/", http.HandlerFunc(handler))
 
 	// Start the server and listen forever on port 8000.
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(":666", nil)
 }

@@ -217,6 +217,13 @@ func main() {
 	// into the Broker's messages channel and are then broadcast
 	// out to any clients that are attached.
 	go func() {
+		// key := "initscore"
+		// s, err := redis.String(c.Do("GET", key))
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
+		// fmt.Printf("%s = %s\n", key, s)
+		
 		for i := 0; ; i++ {
 			// Create a little message to send to clients,
 			// including the current time.
@@ -224,8 +231,11 @@ func main() {
 			case redis.Message:
 				fmt.Printf("%s: message: %s\n", v.Channel, v.Data)
 				b.messages <- fmt.Sprintf("%s",v.Data)
+				
 				log.Printf("Sent message %d ", i)
 			case redis.Subscription:
+				// b.messages <- fmt.Sprintf("%s","美")
+				// fmt.Println("----------")
 				fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
 			case error:
 				return

@@ -1,0 +1,92 @@
+<!-- https://www.w3schools.com/howto/howto_js_countdown.asp-->
+<!DOCTYPE HTML>
+<html>
+<head>
+
+
+
+
+ <link rel="icon" href="https://photosfor2018.oss-cn-hangzhou.aliyuncs.com/dreamforfuture.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+<script>
+    if (!!window.EventSource) {
+      var source = new EventSource('/events/');
+      source.onmessage = function(e) {
+        // $("#data").text(e.data);
+        // Console.log(e.data);
+        // window.alert(e.data);
+        document.getElementById("demo").innerHTML = e.data;
+      }
+    }
+</script>
+
+	<!-- <script type="text/javascript">
+
+	    // Create a new HTML5 EventSource
+	    var source = new EventSource('/events/');
+
+	    // Create a callback for when a new message is received.
+	    source.onmessage = function(e) {
+
+	        // Append the `data` attribute of the message to the DOM.
+            // document.body.innerHTML += e.data + '<br>';
+            //Console.log(e.data);
+            document.getElementById("demo").innerHTML = e.data;
+	    };
+	</script> -->
+
+
+
+
+<style>
+#demo{
+  text-align: center;
+  font-size: 60px;
+  color: red;
+  position: absolute;
+    top: 50%;
+    left: 45%;
+    margin-top: -50px;
+    margin-left: -50px;
+    width: 100px;
+    height: 100px;
+   
+
+}
+
+#demo1{
+  text-align: center;
+  font-size: 60px;
+  color: red;
+  position: absolute;
+    top: 65%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -50px;
+    width: 100px;
+    height: 100px;
+   
+
+}
+
+
+
+
+body{
+    background-color: black;
+}
+
+
+  
+ 
+
+
+
+</style>
+</head>
+<body>
+
+<ul id="demo"></ul>
+</body>
+</html>
